@@ -152,6 +152,7 @@ if __name__ == "__main__":
 
             # Format datetime string for 16 characters
             time_string = dt.strftime("%I:%M:%S, %a %d")
+            time_string = time_string.ljust(16)
 
             display.lcd_display_string(time_string, 1)
             # print(time_string, len(time_string))
@@ -171,44 +172,46 @@ if __name__ == "__main__":
 
                 dict_common = json.load(json_file)
 
-                if dict_common["INTERNET"]["STATUS"] == "UP":
+            if dict_common["INTERNET"]["STATUS"] == "UP":
 
-                    # change the status after the interval
-                    if time.time() - timestamp > INTERVAL_SHIFT:
-                        timestamp = time.time()
-                        STATUS_INDEX += 1
+                # change the status after the interval
+                if time.time() - timestamp > INTERVAL_SHIFT:
+                    timestamp = time.time()
+                    STATUS_INDEX += 1
 
-                        # if reached end of dict, reset
-                        if STATUS_INDEX == len(dict_common):
-                            STATUS_INDEX = 0
+                    # if reached end of dict, reset
+                    if STATUS_INDEX == len(dict_common):
+                        STATUS_INDEX = 0
 
-                    # if INTERNET, skip
-                    if list(dict_common.keys())[STATUS_INDEX] == "INTERNET":
-                        STATUS_INDEX += 1
+                # if INTERNET, skip
+                if list(dict_common.keys())[STATUS_INDEX] == "INTERNET":
+                    STATUS_INDEX += 1
 
-                    # FORMAT info_string based on STATUS_INDEX
-                    if list(dict_common.keys())[STATUS_INDEX] == "INTERNET_SPEED":
-                        info_string = "\u25B2{} \u25BC{} MB".format(
-                            dict_common["INTERNET_SPEED"]["DOWNLOAD_SPEED"],
-                            dict_common["INTERNET_SPEED"]["UPLOAD_SPEED"],
-                        )
-
-                    else:
-                        info_string = list(dict_common.keys())[STATUS_INDEX]
-
-                        info_string += " 🡆  "
-
-                        info_string += dict_common[
-                            list(dict_common.keys())[STATUS_INDEX]
-                        ]["STATUS"]
+                # FORMAT info_string based on STATUS_INDEX
+                if list(dict_common.keys())[STATUS_INDEX] == "INTERNET_SPEED":
+                    info_string = "\u25B2{} \u25BC{} MB".format(
+                        dict_common["INTERNET_SPEED"]["DOWNLOAD_SPEED"],
+                        dict_common["INTERNET_SPEED"]["UPLOAD_SPEED"],
+                    )
 
                 else:
-                    info_string = INTERNET_DOWN_STRING
+                    info_string = list(dict_common.keys())[STATUS_INDEX]
 
-                display.lcd_display_string(info_string, 2)
-                # print(info_string, len(info_string))
+                    info_string += " 🡆  "
 
-                time.sleep(0.5)
+                    info_string += dict_common[list(dict_common.keys())[STATUS_INDEX]][
+                        "STATUS"
+                    ]
+
+            else:
+                info_string = INTERNET_DOWN_STRING
+
+            info_string = info_string.ljust(16)
+
+            display.lcd_display_string(info_string, 2)
+            # print(info_string, len(info_string))
+
+            time.sleep(0.5)
 
     except KeyboardInterrupt:
 
